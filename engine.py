@@ -60,7 +60,10 @@ class Game_state():
 					moves.append(Move((r, c), (r-1, c), self.board)) # create a move object and append to list
 				if  self.board[r-2][c] == "  ":
 					moves.append(Move((r, c), (r-2, c), self.board))
-				
+
+			else:
+				if self.board[r-1][c] == "  ":
+					moves.append(Move((r, c), (r-1, c), self.board))
 		##FIX
 		else: # if it's dark's turn to move
 
