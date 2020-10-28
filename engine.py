@@ -55,15 +55,18 @@ class Game_state():
 
 		## FIX
 		if self.light_to_move: # if it's light's turn to move
-			if r == 6: #create first pawn moves
-				if self.board[r-1][c] == "  ":
+			 #create first pawn moves
+				if self.board[r-1][c] == "  ": # one move vertically
 					moves.append(Move((r, c), (r-1, c), self.board)) # create a move object and append to list
-				if  self.board[r-2][c] == "  ":
-					moves.append(Move((r, c), (r-2, c), self.board))
-
-			else:
-				if self.board[r-1][c] == "  ":
-					moves.append(Move((r, c), (r-1, c), self.board))
+					if r == 6: # position of pawn b4 first move
+						if  self.board[r-2][c] == "  ": # two moves veritcally
+							moves.append(Move((r, c), (r-2, c), self.board))
+				if c-1 >= 0:	 # making sure  column still  on board
+					if self.board [r-1][c-1][1] == "d": # capture(attack) move (once) diagonally to the left
+						moves.append(Move((r, c), (r-1, c-1), self.board))
+				if c + 1 <=7: # making sure   columnstill on baord
+					if self.board[r-1][c +1][1] =="d": # capture(attack) move (once) diagonally to the right
+						moves.append(Move((r, c), (r-1, c+1), self.board))
 		##FIX
 		else: # if it's dark's turn to move
 
