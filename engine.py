@@ -77,22 +77,22 @@ class Game_state():
 
 
 	def get_bishop_moves(self, r, c, moves):
-
- 		"""
-			calculates all possible bishop moves for a given colour (light or dark)
-			and appends them to a list
-
-			input parameters:
-			r     --> starting row (int)
-			c     --> starting column (int)
-			moves --> posiible moves container (list)
-
-			return parameter(s):
-			None
- 		"""
-
- 		##TODO
- 		pass
+		if self.light_to_move:
+			direction = [(-1,-1), (1,1),(1,-1), (-1,1)] # possible direction
+			for d in direction:
+				for i in range(1,8):
+					rownum = r + d[0] * i
+					colnum = c + d[1] * i
+					if 0 <= rownum <8 and 0 <= colnum < 8: # making sure r and c on board
+						if self.board[rownum][colnum] == "  ":
+							moves.append(Move((r,c), (rownum,colnum), (self.board)))
+						elif self.board[rownum][colnum][1] == "d": # capture enemy piece
+							moves.append(Move((r,c), (rownum,colnum), (self.board)))
+							break
+						else:
+							break # when ally piece encountered
+					else:
+						break # when off the board
 
 
 	def get_knight_moves(self, r, c, moves):
