@@ -313,6 +313,15 @@ class Game_state():
         self.move_log.append(move) # log move
         self.light_to_move = not self.light_to_move # next player to move
 
+        # Pawn Promotion
+        if move.isPawnPromotion:
+            promotedPiece = input("Promote to q, r, b, or n ") #we can add this to the ui later
+            promotionOptions = ("q","r","b","n")
+            if promotedPiece in promotionOptions:
+                self.board[move.end_row][move.end_col] = promotedPiece + move.piece_moved[1]
+                #creates a default queen promotion if wrong input is given
+            else:
+                self.board[move.end_row][move.end_col] = "q" + move.piece_moved[1]
 
     def undo_move(self, look_ahead_mode = False):
         """
@@ -380,6 +389,9 @@ class Move():
         self.end_col = end_sq[1] # intended column destiantion of piece to e moved
         self.piece_moved = board[self.start_row][self.start_col] # actual piece moved
         self.piece_captured = board[self.end_row][self.end_col] # opponent piece if any on the destination square
+        self.isPawnPromotion = False
+        if (self.piece_moved == "pl" and self.end_row == 0) or (self.piece_moved == "pd" and self.end_row == 7):
+            self.isPawnPromotion = True
 
     def get_chess_notation(self):
         """
