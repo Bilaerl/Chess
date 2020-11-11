@@ -314,8 +314,8 @@ class Game_state():
         self.light_to_move = not self.light_to_move # next player to move
 
         # Pawn Promotion
-        if move.ispawn_promotion:
-            promoted_piece = input("Input q(Queen),r(rook),b(bishop) or n(knight)") #we can add this to the ui later
+        if (move.piece_moved == "pl" and move.end_row == 0) or (move.piece_moved == "pd" and move.end_row == 7):
+            promoted_piece = input("Input q(Queen),r(rook),b(bishop) or n(knight) to promote ") #we can add this to the ui later
             promotion_options = ("q","r","b","n")
             if promoted_piece in promotion_options:
                 self.board[move.end_row][move.end_col] = promoted_piece + move.piece_moved[1]
@@ -389,9 +389,6 @@ class Move():
         self.end_col = end_sq[1] # intended column destiantion of piece to e moved
         self.piece_moved = board[self.start_row][self.start_col] # actual piece moved
         self.piece_captured = board[self.end_row][self.end_col] # opponent piece if any on the destination square
-        self.ispawn_promotion = False
-        if (self.piece_moved == "pl" and self.end_row == 0) or (self.piece_moved == "pd" and self.end_row == 7):
-            self.ispawn_promotion = True
 
     def get_chess_notation(self):
         """
