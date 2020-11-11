@@ -315,7 +315,7 @@ class Game_state():
 
         # Pawn Promotion
         if move.ispawn_promotion:
-            promoted_piece = input("Input q(Queen),r(rook),b(bishop) or n(knight)") #we can add this to the ui later
+            promoted_piece = input("Input q(Queen),r(rook),b(bishop) or n(knight) to promote ") #we can add this to the ui later
             promotion_options = ("q","r","b","n")
             if promoted_piece in promotion_options:
                 self.board[move.end_row][move.end_col] = promoted_piece + move.piece_moved[1]
