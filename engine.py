@@ -186,6 +186,10 @@ class Game_state():
 		"""
 		self.board[move.start_row][move.start_col] = "  "
 		self.board[move.end_row][move.end_col] = move.piece_moved
+		if move.is_pawn_promotion:
+			self.board[move.start_row][move.start_col] = "  "
+			self.board[move.end_row][move.end_col] = "q" + move.piece_moved[1]
+
 		self.move_log.append(move) # log move
 		self.light_to_move = not self.light_to_move # next player to move
 		##
@@ -206,6 +210,9 @@ class Game_state():
 
 			self.board[last_move.start_row][last_move.start_col] = last_move.piece_moved
 			self.board[last_move.end_row][last_move.end_col] = last_move.piece_captured
+			if last_move.is_pawn_promotion:
+				self.board[last_move.start_row][last_move.start_col] = last_move.piece_moved
+				self.board[last_move.end_row][last_move.end_col] = last_move.piece_captured
 			self.light_to_move = not self.light_to_move
 			###
 			#Undoing kings movement
@@ -322,6 +329,11 @@ class Move():
 		self.end_row = end_sq[0] # intended row destination of piece to be moved
 		self.end_col = end_sq[1] # intended column destiantion of piece to e moved
 		self.piece_moved = board[self.start_row][self.start_col] # actual piece moved
+		self.is_pawn_promotion = False
+		if self.piece_moved == "pl" and self.end_row == 0:
+			self.is_pawn_promotion = True
+		elif self.piece_moved == "pd" and self.end_row == 7:
+			self.is_pawn_promotion =  True
 		self.piece_captured = board[self.end_row][self.end_col] # opponent piece if any on the destination square
 
 	def get_chess_notation(self):
