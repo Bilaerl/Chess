@@ -39,6 +39,8 @@ class Game_state():
 						"b":self.get_bishop_moves, "n":self.get_knight_moves}
 		self.light_king_pos = (7,4) # light king startung row and column
 		self.dark_king_pos = (0,4) # dark king starting row and column
+		self.check_mate = False # setting checkmate false
+		self.stale_mate = False #setting stalemate false
 
 
 
@@ -186,15 +188,18 @@ class Game_state():
 		"""
 		self.board[move.start_row][move.start_col] = "  "
 		self.board[move.end_row][move.end_col] = move.piece_moved
-		self.move_log.append(move) # log move
-		self.light_to_move = not self.light_to_move # next player to move
+		#######
 		##
 		#Updating the postion of the Kings
 		##
-		if move.piece_moved == "kl": #  light king pices moved
-			self.light_king_pos = (move.end_row, move.end_col) # upadate tuple containging postion
-		elif move.piece_moved == "kd": # Dark king pices moved
-			self.dark_king_pos = (move.end_row, move.end_col)# upadate tuple containging postion
+		if move.piece_moved == "kl": #  light king piece moved
+			self.light_king_pos = (move.end_row, move.end_col) # upadate tuple containing postion
+		elif move.piece_moved == "kd": # Dark king piece moved
+			self.dark_king_pos = (move.end_row, move.end_col)# upadate tuple containing postion
+
+		self.move_log.append(move) # log move
+		self.light_to_move = not self.light_to_move # next player to move
+
 
 
 	def undo_move(self, look_ahead_mode = False):
@@ -206,13 +211,14 @@ class Game_state():
 
 			self.board[last_move.start_row][last_move.start_col] = last_move.piece_moved
 			self.board[last_move.end_row][last_move.end_col] = last_move.piece_captured
-			self.light_to_move = not self.light_to_move
+
 			###
 			#Undoing kings movement
-			if last_move.piece_moved == "kl": #  light king pices moved undo
+			if last_move.piece_moved == "kl": #  light king piece moved undo
 				self.light_king_pos = (last_move.start_row, last_move.start_col) # update tuple by undoing move
-			elif last_move.piece_moved == "kd": #  Dark king pices moved undo
+			elif last_move.piece_moved == "kd": #  Dark king piece moved undo
 				self.dark_king_pos = (last_move.start_row, last_move.start_col) # update tuple by undoing move
+			self.light_to_move = not self.light_to_move
 			self.undo_text = "undoing -> {}".format(last_move.get_chess_notation()) # an undoing statement to be printed to show undo done
 
 
@@ -225,47 +231,75 @@ class Game_state():
 
 		"""
 			this function updates the get_possible_moves to valid chess valid_moves
-			it identifies if the king is in check and provides solution to avoid checkmate or stalemate
-			it returns the updated possible valid moves and current_turn
-
+			it identifies if the king is in check and provides solution to avoid checkmate
 			it calls the get_possible_moves function and incheck function
+
+ 			input parameters:
+			none
+
+			return parameter(s):
+			moves
+
 		"""
-		moves, turn = self.get_possible_moves() # passing in two varibles moves and turns because it returns 2
-		for i in range(len(moves)-1,-1,-1): # iterating the index of the moves from the last to 1st
-											# because we will be removing moves which will skip moves if iterated from 1st to last
-			self.make_move(moves[i]) 		#making a move to check if it will leads to the king being attacked
-			self.light_to_move = not  self.light_to_move # switching turn
-			if self.incheck():  # checking if opposition move attack king
+		# passing in two varibles moves and turns because it returns 2
+		moves, turn = self.get_possible_moves()
+		# iterating the index of the moves from the last to 1st because we will
+		#be removing moves which will skip moves if iterated from 1st to last
+		for i in range(len(moves)-1,-1,-1):
+			#making a move to check if it will lead to the king being attacked
+			self.make_move(moves[i])
+			self.light_to_move = not  self.light_to_move # switching turn to opponent
+			if self.in_check():  # checking if opposition move attack king
 				moves.remove(moves[i]) # remove moves leading to king being attacked
 			self.light_to_move  = not self.light_to_move #switching back
-			self.undo_move()
+			self.undo_move() # undo the move done... because this are hidden testing moves
+		if len(moves) == 0 and self.in_check(): # checking if there are no posssible valid moves  and king incheck
+			self.check_mate = True # check mate
+		elif len(moves) == 0: # checking if there are no possible moves but king not incheck
+			self.stale_mate = True # stalemate
+		else:
+			self.check_mate = False
+			self.stale_mate = False
 
 		return moves, turn
 
 
 
-	def incheck(self):
+	def in_check(self):
 		"""
-			Returns a boolean
 			uses the square_under_attack fuction to test the moves that will lead to king being attacked
 			checks for both light and dark pieces
+
+			input parameter(s):
+			None
+
+			return parameter(s):
+			Boolean
+
 		"""
-		if self.light_to_move: # lights tunr to move
-			return self.square_under_attack(self.light_king_pos[0], self.light_king_pos[1]) # checks light king under attack in respact to its position
+		if self.light_to_move: # lights turn to move
+			# checks light king under attack in respact to its position
+			return self.square_under_attack(self.light_king_pos[0], self.light_king_pos[1])
 		else:
-			return self.square_under_attack(self.dark_king_pos[0], self.dark_king_pos[1]) # checks light king under attack in respact to its position
+			# checks light king under attack in respect to its position
+			return self.square_under_attack(self.dark_king_pos[0], self.dark_king_pos[1])
+
+
 
 	def square_under_attack(self, r,c):
 		"""
-		uses the kings postion og the board to determine if its under attacked
-		it takes two parameters
+			uses the kings postion on the board to determine if its under attacked
+
+			input parameter(s):
 			r -----> row of the piece position (int)
 			c -----> column of the piece position (int)
-			returns a boolean
+
+			return parameter(s):
+			Boolean
 		"""
-		self.light_to_move = not self.light_to_move # swaping turns
+		self.light_to_move = not self.light_to_move # switching turns to opponent to get the opponent moves
 		oppostion_moves, turn= self.get_possible_moves() # passing in two varibles moves and turns because it returns 2
-		self.light_to_move = not self.light_to_move # swaping turns
+		self.light_to_move = not self.light_to_move # change back the turn to check if opposition move attack king
 		for move in oppostion_moves: # iterating through opposition moves
 			if (move.end_row == r) and (move.end_col == c): # checking to see if the move is same position as that of the king
 				return True # true if same position

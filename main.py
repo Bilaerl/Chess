@@ -42,6 +42,7 @@ def main():
 	square_selected = () # x, y coordinate of selected square
 	player_clicks = [] # list of appended square_selected
 	valid_moves = []
+	game_over = False
 	while running:
 
 		valid_moves, first_click_turn = gs.get_valid_moves()
@@ -102,8 +103,31 @@ def main():
 								square_selected = ()
 
 		display_game_state(screen, gs, valid_moves, player_clicks)
+		if gs.check_mate: # calling checkmate from engine to see if check is true
+			if gs.light_to_move: # if it is light turn to play
+				#calling draw_text function to display dark team wins on screen
+				draw_text(screen, "Check Mate.. Dark Team Wins")
+			else: # if it is dark turn to play
+				#calling draw_text function to display dark team wins on screen
+				draw_text(screen, "Check Mate... light Team Wins")
+		elif gs.stale_mate:
+			draw_text(screen, "Stale Mate.... Draw")
 		clock.tick(MAX_FPS)
 		pg.display.flip()
+
+
+def draw_text(screen, text):
+	"""
+		display text on scree when there is a stalemate of checkmate
+
+		input parameter:
+		screen
+		text ------> string
+	"""
+	font = pg.font.SysFont("Times Roman", 40, True, False) # determing font, font size, bold and italic
+	text_mess = font.render(text, 0, pg.Color("darkblue"))	# colour and wrinting the text
+	text_pos = text_mess.get_rect(center = pg.display.get_surface().get_rect().center) # postion of the text on screen
+	screen.blit(text_mess, text_pos) # displaying the text on screen
 
 
 def display_game_state(screen, gs, valid_moves, player_clicks):
