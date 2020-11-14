@@ -37,8 +37,7 @@ class Game_state():
 		self.move_piece = {"p":self.get_pawn_moves, "r":self.get_rook_moves, \
 						"q":self.get_queen_moves, "k":self.get_king_moves, \
 						"b":self.get_bishop_moves, "n":self.get_knight_moves}
-		self.light_king_pos = (7,4) # light king startung row and column
-		self.dark_king_pos = (0,4) # dark king starting row and column
+		self.king_pos = {"kl":(7,4), "kd":(0,4)} # light king and Dark King starting row and column
 		self.check_mate = False # setting checkmate false
 		self.stale_mate = False #setting stalemate false
 
@@ -192,10 +191,9 @@ class Game_state():
 		##
 		#Updating the postion of the Kings
 		##
-		if move.piece_moved == "kl": #  light king piece moved
-			self.light_king_pos = (move.end_row, move.end_col) # upadate tuple containing postion
-		elif move.piece_moved == "kd": # Dark king piece moved
-			self.dark_king_pos = (move.end_row, move.end_col)# upadate tuple containing postion
+		if move.piece_moved[0] == "k": #  king piece moved
+			self.king_pos[move.piece_moved] = (move.end_row, move.end_col) # update tuple containing postion
+
 
 		self.move_log.append(move) # log move
 		self.light_to_move = not self.light_to_move # next player to move
@@ -214,10 +212,9 @@ class Game_state():
 
 			###
 			#Undoing kings movement
-			if last_move.piece_moved == "kl": #  light king piece moved undo
-				self.light_king_pos = (last_move.start_row, last_move.start_col) # update tuple by undoing move
-			elif last_move.piece_moved == "kd": #  Dark king piece moved undo
-				self.dark_king_pos = (last_move.start_row, last_move.start_col) # update tuple by undoing move
+			if last_move.piece_moved[0] == "k": #   king piece moved undo
+				self.king_pos[last_move.piece_moved] = (last_move.start_row, last_move.start_col) # update tuple by undoing move
+
 			self.light_to_move = not self.light_to_move
 			self.undo_text = "undoing -> {}".format(last_move.get_chess_notation()) # an undoing statement to be printed to show undo done
 
@@ -279,10 +276,10 @@ class Game_state():
 		"""
 		if self.light_to_move: # lights turn to move
 			# checks light king under attack in respact to its position
-			return self.square_under_attack(self.light_king_pos[0], self.light_king_pos[1])
+			return self.square_under_attack(self.king_pos["kl"][0], self.king_pos["kl"][1])
 		else:
 			# checks light king under attack in respect to its position
-			return self.square_under_attack(self.dark_king_pos[0], self.dark_king_pos[1])
+			return self.square_under_attack(self.king_pos["kd"][0], self.king_pos["kd"][1])
 
 
 
