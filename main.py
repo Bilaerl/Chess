@@ -33,6 +33,7 @@ def main():
 	clock = pg.time.Clock()
 	#screen.fill(pg.Color("ghostwhite"))
 	screen.fill(pg.Color("brown4"))
+	#screen.fill(pg.Color("sienna"))
 
 
 	gs = Game_state()
@@ -82,6 +83,7 @@ def main():
 
 					if len(player_clicks) == 2: # 'from' and 'to' are available
 						move = Move(player_clicks[0], player_clicks[1], gs.board) # create move object
+						en_passant_move = Move(player_clicks[0], player_clicks[1], gs.board, move_type="en_passant") # create move object
 
 						if move in valid_moves:
 
@@ -90,6 +92,16 @@ def main():
 
 							print(move.get_chess_notation())
 
+							square_selected = ()
+							player_clicks = []
+						
+						elif en_passant_move in valid_moves:
+							
+							gs.make_move(en_passant_move)
+							animate(en_passant_move, screen, gs.board, clock)
+
+							print(en_passant_move.get_chess_notation())
+							
 							square_selected = ()
 							player_clicks = []
 
@@ -228,8 +240,8 @@ def animate(move, screen, board, clock):
 
 		r, c = ((move.start_row + dr*frame/frame_count, move.start_col + dc*frame/frame_count))
 
-		# play sound
-		if not sound_played and ((abs(move.end_row - r) + abs(move.end_col - c))/max((move.end_row+move.end_col + 0.01), (r+c + 0.01))) < 0.4:
+		# play sound 
+		if not sound_played and ((abs(move.end_row - r) + abs(move.end_col - c))/max((move.end_row+move.end_col+0.01), (r+c+0.01))) < 0.4:
 			play_sound(move)
 			sound_played = True
 
